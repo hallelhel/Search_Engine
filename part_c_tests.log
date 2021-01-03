@@ -1,5 +1,26 @@
-ERROR 2020-12-31 20:57:52,154: report_part_c.docx does not exist.
-ERROR 2020-12-31 20:57:52,170: search_engine_1.py does not exist.
-ERROR 2020-12-31 20:57:52,170: search_engine_2.py does not exist.
-ERROR 2020-12-31 20:58:02,395: idx_bench.pkl does not exist.
-DEBUG 2020-12-31 20:58:02,395: Total runtime was: 0:00:10.241432
+ERROR 2021-01-03 16:32:40,945: report_part_c.docx does not exist.
+INFO 2021-01-03 16:32:40,967: Successfully loaded benchmark labels data.
+INFO 2021-01-03 16:32:40,967: Successfully loaded queries data.
+ERROR 2021-01-03 16:32:40,967: search_engine_1.py does not exist.
+ERROR 2021-01-03 16:32:40,967: search_engine_2.py does not exist.
+ERROR 2021-01-03 16:32:41,547: The following error occured while testing the module search_engine_best.
+ERROR 2021-01-03 16:32:41,547: No module named 'requests'
+Traceback (most recent call last):
+  File "C:/Users/הלל/PycharmProjects/Search_Engine/test_part_c_students.py", line 89, in <module>
+    se = importlib.import_module(engine_module)
+  File "C:\anaconda3\lib\importlib\__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1006, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 983, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 967, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 677, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 728, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "C:\Users\הלל\PycharmProjects\Search_Engine\search_engine_best.py", line 6, in <module>
+    from searcher import Searcher
+  File "C:\Users\הלל\PycharmProjects\Search_Engine\searcher.py", line 2, in <module>
+    import utils
+  File "C:\Users\הלל\PycharmProjects\Search_Engine\utils.py", line 2, in <module>
+    import requests
+ModuleNotFoundError: No module named 'requests'
+DEBUG 2021-01-03 16:32:41,562: Total runtime was: 0:00:00.617188
