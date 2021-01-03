@@ -159,9 +159,15 @@ class Indexer:
 
     def get_term_inverted_idx(self, term):
         """
-        Return the posting list from the index for a term.
+        Return from inverted idx dict - list freq,"name doc".
         """
         return self.inverted_idx[term] if self._is_term_exist(term) else []
+    def get_weight_doc(self, doc_id):
+        """
+        Return the weight_doc dict[doc].
+        """
+        return self.weight_doc_dict[doc_id] if self._is_term_exist(doc_id) else []
+
 
     def create_postingDict(self):
         self.postingDict.update(
