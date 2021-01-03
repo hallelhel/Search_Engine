@@ -10,10 +10,12 @@ class Searcher:
     # memory for the searcher to use such as LSI, LDA, Word2vec models. 
     # MAKE SURE YOU DON'T LOAD A MODEL INTO MEMORY HERE AS THIS IS RUN AT QUERY TIME.
     def __init__(self, parser, indexer, model=None):
-        self._parser = parser
-        self._indexer = indexer
-        self._ranker = Ranker()
-        self._model = model
+        self.parser = parser
+        self.ranker = Ranker()
+        # self.inverted_index = inverted_index
+        # self.k = num_document_to_return
+        # self.weight_doc_dict = weight_doc_dict
+        # self.config = config
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
