@@ -1,4 +1,5 @@
 # DO NOT MODIFY CLASS NAME
+import math
 import pickle
 
 
@@ -29,63 +30,71 @@ class Indexer:
         self.num_of_doc += 1
         # Go over each term in the doc
         for term in document_dictionary.keys():
+            # posting dict order by first letter of term
             if term[0].isdigit():
                 first_key = "numbers"
-
             else:
                 first_key = term[0].upper()  # return "A"
                 if first_key not in self.postingDict.keys():
                     continue
-            num_term = document_dictionary[term]
-            tf_ij = num_term / document.max_tf
 
+            # frequency in the doc
+            num_term = document_dictionary[term]
+            # frequency / |term with the max freq|
+            tf_ij = num_term / document.max_tf
             if term not in self.inverted_idx.keys():
                 if " " in term:  # name and entity
                     if term not in self.instanceDict:  # first time
                         self.instanceDict[term] = [[1, ""], [document.tweet_id, num_term, document.num_of_uniq,
                                                              document.max_tf,
-                                                             tf_ij]]  # value[0] -> inverted value[1] --> posting
+                                                             tf_ij]]  # value[0] -> inverted , value[1] --> posting
                         continue
                     else:  # second time for this term
-                        self.inverted_idx[term] = self.instanceDict[term][0]  # update inverted
-                        self.inverted_idx[term][0] += 1
+                        update = self.instanceDict[term][0][0] + 1
+                        self.inverted_idx[term] = [update, ""]   # update inverted
                         try:
                             self.postingDict[first_key][term] = []
-                            self.postingDict[first_key][term].append(self.instanceDict[term][
-                                                                         1])  # update posting + for this time posting dict add at the end of func
+                            # update posting on the first time + for this time posting dict add at the end of func
+                            self.postingDict[first_key][term].append(self.instanceDict[term][1])
                         except:
                             del self.inverted_idx[term]
                             continue
                         # remove from instances dict
                         del self.instanceDict[term]
-                elif term[0].isupper():  # capital letter --> check if exist lower case
-                    if term.lower() in self.inverted_idx.keys():  # exist already
+                # term not in inverted & no spaces in term
+                elif term[0].isupper():
+                    # capital letter --> check if exist lower case
+                    if term.lower() in self.inverted_idx.keys():
+                        # exist already
                         term = term.lower()
                         self.inverted_idx[term][0] += 1
                     else:
                         self.inverted_idx[term] = [1, ""]
                         try:
+                            # initialize this key adding to posting in end of func
                             self.postingDict[first_key][term] = []
                         except:
                             del self.inverted_idx[term]
                             continue
-                else:  # lower case
-                    if term.upper() in self.inverted_idx.keys():  # term exist already
+                else:  # lower case not in inverted
+                    # term in upper exist already
+                    if term.upper() in self.inverted_idx.keys():
                         # change the key to lower case in inverted index dict:
-                        self.inverted_idx[term] = [1, ""]
-                        self.inverted_idx[term][0] = self.inverted_idx[term.upper()][0]
-                        self.inverted_idx[term][1] = self.inverted_idx[term.upper()][1]
+                        update = []
+                        update.extend(self.inverted_idx[term.upper()])
+                        # +1 for this time
+                        update[0] += 1
+                        self.inverted_idx[term] =[update[0],update[1]]
                         del self.inverted_idx[term.upper()]  # remove the upper case
-                        self.inverted_idx[term][0] += 1
                         if term.upper() in self.postingDict[first_key]:
                             try:
-                                self.postingDict[first_key][term] = self.postingDict[first_key][
-                                    term.upper()]  # new key in posting dict
+                                # new key in posting dict
+                                self.postingDict[first_key][term] = self.postingDict[first_key][term.upper()]
                                 del self.postingDict[first_key][term.upper()]  # remove the upper case from posting
                             except:
                                 del self.inverted_idx[term]
                                 continue
-
+                    # no term in upper case
                     else:
                         self.inverted_idx[term] = [1, ""]
                         try:
@@ -93,17 +102,19 @@ class Indexer:
                         except:
                             del self.inverted_idx[term]
                             continue
-
+            # term in inverted idx
             else:
                 self.inverted_idx[term][0] += 1
-
+            """
+            ----all the terms in the inverted are in posting----
             if term not in self.postingDict[first_key]:  # case after clear to posting dict
                 try:
                     self.postingDict[first_key][term] = []
                 except:
                     del self.inverted_idx[term]
                     continue
-
+                    
+            """
             try:
                 self.postingDict[first_key][term].append(
                     [document.tweet_id, num_term, document.num_of_uniq, document.max_tf, tf_ij])
@@ -145,6 +156,12 @@ class Indexer:
         Return the posting list from the index for a term.
         """
         return self.postingDict[term] if self._is_term_exist(term) else []
+
+    def get_term_inverted_idx(self, term):
+        """
+        Return the posting list from the index for a term.
+        """
+        return self.inverted_idx[term] if self._is_term_exist(term) else []
 
     def create_postingDict(self):
         self.postingDict.update(
