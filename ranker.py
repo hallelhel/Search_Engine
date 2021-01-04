@@ -16,20 +16,24 @@ class Ranker:
         :param relevant_docs: dictionary of documents that contains at least one term from the query.
         :return: sorted list of documents by score
         """
-        for doc in relevant_doc:
-            mone = 0
-            for wij in relevant_doc[doc][1]:
-                mone +=wij
-            machne = _indexer.get_weight_doc[doc]
-            machne= machne * len(len_query)
-            cosSim= mone/math.sqrt(machne)
-            relevant_doc[doc][1] = cosSim
+        try:
+            for doc in relevant_doc:
+                mone = 0
+                for wij in relevant_doc[doc][1]:
+                    mone +=wij
+                machne = _indexer.get_weight_doc(doc)
+                machne = machne * len_query
+                cosSim= mone/math.sqrt(machne)
+                relevant_doc[doc][1] = cosSim
+        except:
+            print("ranker")
         list_sorted = sorted(relevant_doc.items(), key=lambda item: item[1][1], reverse=True)
-        return list_sorted
-        # ranked_results = sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)
-        # if k is not None:
-        #     ranked_results = ranked_results[:k]
-        #return [d[0] for d in ranked_results]
+        return [d[0] for d in list_sorted]
+            #return list_sorted
+            # ranked_results = sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)
+            # if k is not None:
+            #     ranked_results = ranked_results[:k]
+            #return [d[0] for d in ranked_results]
 
     def retrieve_top_k(sorted_relevant_doc, k):
         """
