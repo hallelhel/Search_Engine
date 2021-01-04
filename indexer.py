@@ -152,7 +152,9 @@ class Indexer:
         """
         Checks if a term exist in the dictionary.
         """
-
+        if term[0].isdigit():
+            first_key = "numbers"
+            return term in self.postingDict[first_key]
         return term in self.postingDict[term[0].upper()]
 
     def _is_term_exist_in_idx(self, term):
@@ -161,14 +163,15 @@ class Indexer:
         """
         return term in self.inverted_idx
 
-
-
     # feel free to change the signature and/or implementation of this function 
     # or drop altogether.
     def get_term_posting_list(self, term):
         """
         Return the posting list from the index for a term.
         """
+        if term[0].isdigit():
+            first_key = "numbers"
+            return self.postingDict[first_key][term] if self._is_term_exist_in_posting(term) else []
         return self.postingDict[term[0].upper()][term] if self._is_term_exist_in_posting(term) else []
 
     def get_term_inverted_idx(self, term):
