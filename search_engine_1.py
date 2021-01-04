@@ -1,5 +1,5 @@
 import os
-from datetime import time
+import time
 
 import pandas as pd
 from reader import ReadFile
@@ -7,7 +7,7 @@ from configuration import ConfigClass
 from parser_module import Parse
 from indexer import Indexer
 from searcher import Searcher
-import utils
+#import utils
 
 
 # DO NOT CHANGE THE CLASS NAME
@@ -31,31 +31,36 @@ class SearchEngine:
         Output:
             No output, just modifies the internal _indexer object.
         """
+        #r = ReadFile(self.config.get__corpusPath())
+        #reader = ReadFile(fn)
+        #walk_dir = self.config.get__corpusPath()
+        # for root, subdirs, files in os.walk(walk_dir, topdown=True):
+        #   for file in files:  # files=folder
+        #        if file.endswith('.parquet'):
+
+
         start = time.time()
         number_of_documents = 0
-        r = ReadFile(self.config.get__corpusPath())
-        walk_dir = self.config.get__corpusPath()
-        for root, subdirs, files in os.walk(walk_dir, topdown=True):
-            for file in files:  # files=folder
-                if file.endswith('.parquet'):
-                    files_list = r.update_root(root, file_name=file)  # list of all tweet
-                    # Iterate over every document in the file
-                    for idx, document in enumerate(files_list):
-                        # parse the document
-                        parsed_document = self._parser.parse_doc(document)
-                        number_of_documents += 1
-                        # index the document data
-                        self._indexer.add_new_doc(parsed_document)
-                    # print("finish file")
-        # indexer.load_to_disk()
+        df = pd.read_parquet(fn, engine="pyarrow")
+        documents_list = df.values.tolist()
+
+        # Iterate over every document in the file
+        for idx, document in enumerate(documents_list):
+            # parse the document
+            parsed_document = self._parser.parse_doc(document)
+            number_of_documents += 1
+            # index the document data
+            self._indexer.add_new_doc(parsed_document)
+            # print("finish file")
         end = time.time()
+        print(end-start)
+        #self._indexer.sum_terms_per_docs(number_of_documents)
+        #self._indexer.load_to_disk()
         print('Finished parsing and indexing.')
-        start2 = time.time()
-        self._indexer.sum_terms_per_docs(number_of_documents)
-        end2 = time.time()
-        utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
+        #utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
         # utils.save_obj(indexer.postingDict, "posting")
-        utils.save_obj(self._indexer.weight_doc_dict, "weight_doc_dict")
+        #utils.save_obj(self._indexer.weight_doc_dict, "weight_doc_dict")
+    # save
 
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -76,6 +81,7 @@ class SearchEngine:
         This is where you would load models like word2vec, LSI, LDA, etc. and
         assign to self._model, which is passed on to the searcher at query time.
         """
+
         pass
 
     # DO NOT MODIFY THIS SIGNATURE
