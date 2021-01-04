@@ -2,6 +2,8 @@
 import math
 import pickle
 
+import utils
+
 
 class Indexer:
     # DO NOT MODIFY THIS SIGNATURE
@@ -51,7 +53,7 @@ class Indexer:
                         continue
                     else:  # second time for this term
                         update = self.instanceDict[term][0][0] + 1
-                        self.inverted_idx[term] = [update, ""]   # update inverted
+                        self.inverted_idx[term] = [update, ""]  # update inverted
                         try:
                             self.postingDict[first_key][term] = []
                             # update posting on the first time + for this time posting dict add at the end of func
@@ -84,7 +86,7 @@ class Indexer:
                         update.extend(self.inverted_idx[term.upper()])
                         # +1 for this time
                         update[0] += 1
-                        self.inverted_idx[term] =[update[0],update[1]]
+                        self.inverted_idx[term] = [update[0], update[1]]
                         del self.inverted_idx[term.upper()]  # remove the upper case
                         if term.upper() in self.postingDict[first_key]:
                             try:
@@ -128,8 +130,9 @@ class Indexer:
         Loads a pre-computed index (or indices) so we can answer queries.
         Input:
             fn - file name of pickled index.
+            read from disk
         """
-        raise NotImplementedError
+        utils.load_obj(fn)
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -138,8 +141,10 @@ class Indexer:
         Saves a pre-computed index (or indices) so we can save our work.
         Input:
               fn - file name of pickled index.
+              write to disk
         """
-        raise NotImplementedError
+        data_to_save = [self.inverted_idx, self.postingDict, self.weight_doc_dict]
+        utils.save_obj(data_to_save, fn)
 
     # feel free to change the signature and/or implementation of this function 
     # or drop altogether.
@@ -162,12 +167,12 @@ class Indexer:
         Return from inverted idx dict - list freq,"name doc".
         """
         return self.inverted_idx[term] if self._is_term_exist(term) else []
+
     def get_weight_doc(self, doc_id):
         """
         Return the weight_doc dict[doc].
         """
         return self.weight_doc_dict[doc_id] if self._is_term_exist(doc_id) else []
-
 
     def create_postingDict(self):
         self.postingDict.update(
@@ -175,6 +180,10 @@ class Indexer:
              'M': {}, 'N': {}, 'O': {}, 'P': {}, 'Q': {}, 'R': {}, 'S': {}, 'T': {}, 'U': {}, 'V': {}, 'W': {}, 'X': {},
              'Y': {}, 'Z': {}, "@": {}, "#": {},
              "numbers": {}})
+
+    """
+    load to disk for part a every letter is a file
+    """
 
     def load_to_disk(self):
         path = self.config.get__outPath()
@@ -219,24 +228,25 @@ class Indexer:
     def calc_idf(self, num_of_docs_in_cor):
 
         for term in self.inverted_idx:
-            a = num_of_docs_in_cor/self.inverted_idx[term][0]
+            # N/idf
+            a = num_of_docs_in_cor / self.inverted_idx[term][0]
             idft = math.log(a, 10)
             self.inverted_idx[term].append(idft)
 
     def sum_terms_per_docs(self, num_of_docs_in_cor):
 
         self.calc_idf(num_of_docs_in_cor)
-        path = self.config.get__outPath()
+        # path = self.config.get__outPath()TODO part a
         for first_key in self.postingDict.keys():
-            file_name = path + first_key
+            # file_name = path + first_keyTODO part a TODO part a
             try:
-                with open(file_name, "rb+") as pickfile:
-                    dict_from_disk = pickle.load(pickfile)
+                # with open(file_name, "rb+") as pickfile:TODO part a
+                #     dict_from_disk = pickle.load(pickfile)TODO part a
 
-                for term in dict_from_disk:
+                for term in self.postingDict[first_key]:
                     idf = self.inverted_idx[term][2]
-                    data_of_term = dict_from_disk[term]
-                    num_of_doc = len(dict_from_disk[term])  # self.inverted_idx[term][0]
+                    data_of_term = self.postingDict[first_key][term]
+                    num_of_doc = len(self.postingDict[first_key][term])  # self.inverted_idx[term][0]
                     for i in range(num_of_doc - 1):
                         id_doc = data_of_term[i][0]
                         tf_ij = data_of_term[i][4]
@@ -248,3 +258,14 @@ class Indexer:
             except:
                 # print('problem with the doc {}'.format(file_name))
                 pass
+
+    """
+    load to disk for part c - load 3 objects in tuple - (inverted,posting,terms per docs)
+    """
+
+    def load_retrieval(self):
+
+        data_to_save = [self.inverted_idx, self.postingDict, self.weight_doc_dict]
+
+        with open("idx_posting_docs", "wb") as f:
+            pickle.dump(data_to_save, f)

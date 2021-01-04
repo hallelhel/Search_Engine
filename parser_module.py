@@ -141,20 +141,25 @@ class Parse:
                 self.per = True
                 self.per2 = False
                 continue
-
-            if term[-1] in string.punctuation or ord(term[-1]) < 48:  # to remove anything that is not a word or number
+            if(term == '“cure.”'):
+                print(term[-1])
+                print(ord(term[-1]))
+                print(term[-2])
+                print(ord(term[-2]))
+            if term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127 :  # to remove anything that is not a word or number
                 if term[-1] != '%':
-                    while term[-1] in string.punctuation or ord(term[-1]) < 48:
+                    while term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127:
                         term = term[:-1]
                         if term == "":
                             break
                 if term == "":
                     continue
-                text[counter] = term
+                #text[counter] = term FIXME happen in line 160
 
-            ##new
+
+            ##new- remove emoji in middle of term
             term = ''.join([l for l in term if ord(l) < 127 and ord(
-                l) > 34])  # remove every unnneccery part in term, add ascii between 35 to 126
+                l) > 34])  # remove every unneccery part in term, add ascii between 35 to 126
             if len(term) < 2:
                 continue
             text[counter] = term
