@@ -141,11 +141,9 @@ class Parse:
                 self.per = True
                 self.per2 = False
                 continue
-            if(term == '“cure.”'):
-                print(term[-1])
-                print(ord(term[-1]))
-                print(term[-2])
-                print(ord(term[-2]))
+            if term == " " or term == '':
+                continue
+
             if term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127 :  # to remove anything that is not a word or number
                 if term[-1] != '%':
                     while term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127:

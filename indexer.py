@@ -148,11 +148,20 @@ class Indexer:
 
     # feel free to change the signature and/or implementation of this function 
     # or drop altogether.
-    def _is_term_exist(self, term):
+    def _is_term_exist_in_posting(self, term):
         """
         Checks if a term exist in the dictionary.
         """
-        return term in self.postingDict
+
+        return term in self.postingDict[term[0].upper()]
+
+    def _is_term_exist_in_idx(self, term):
+        """
+        Checks if a term exist in the dictionary.
+        """
+        return term in self.inverted_idx
+
+
 
     # feel free to change the signature and/or implementation of this function 
     # or drop altogether.
@@ -160,19 +169,22 @@ class Indexer:
         """
         Return the posting list from the index for a term.
         """
-        return self.postingDict[term] if self._is_term_exist(term) else []
+        return self.postingDict[term[0].upper()][term] if self._is_term_exist_in_posting(term) else []
 
     def get_term_inverted_idx(self, term):
         """
         Return from inverted idx dict - list freq,"name doc".
         """
-        return self.inverted_idx[term] if self._is_term_exist(term) else []
+        return self.inverted_idx[term] if self._is_term_exist_in_idx(term) else []
+
+    def get_doc_exist(self,doc):
+        return doc in self.weight_doc_dict
 
     def get_weight_doc(self, doc_id):
         """
         Return the weight_doc dict[doc].
         """
-        return self.weight_doc_dict[doc_id] if self._is_term_exist(doc_id) else []
+        return self.weight_doc_dict[doc_id] if self.get_doc_exist(doc_id) else []
 
     def create_postingDict(self):
         self.postingDict.update(
@@ -247,13 +259,16 @@ class Indexer:
                     idf = self.inverted_idx[term][2]
                     data_of_term = self.postingDict[first_key][term]
                     num_of_doc = len(self.postingDict[first_key][term])  # self.inverted_idx[term][0]
-                    for i in range(num_of_doc - 1):
-                        id_doc = data_of_term[i][0]
-                        tf_ij = data_of_term[i][4]
-                        if id_doc in self.weight_doc_dict.keys():
-                            self.weight_doc_dict[id_doc] += (tf_ij * idf) ** 2
-                        else:
-                            self.weight_doc_dict[id_doc] = (tf_ij * idf) ** 2
+                    try:
+                        for i in range(num_of_doc):
+                            id_doc = data_of_term[i][0]
+                            tf_ij = data_of_term[i][4]
+                            if id_doc in self.weight_doc_dict.keys():
+                                self.weight_doc_dict[id_doc] += (tf_ij * idf) ** 2
+                            else:
+                                self.weight_doc_dict[id_doc] = (tf_ij * idf) ** 2
+                    except:
+                        print("num of doc out of range")
 
             except:
                 # print('problem with the doc {}'.format(file_name))

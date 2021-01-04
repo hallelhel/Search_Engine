@@ -46,7 +46,8 @@ class Searcher:
         relevant_docs = dict(itertools.islice(relevant_docs.items(), 2000))   #max is 2000 docs
         relevant_docs_sort = self._ranker.rank_relevant_docs(relevant_docs, self._indexer, len(query_as_list))
         if k is not None:
-            relevant_docs_sort = self.ranker.retrieve_top_k(relevant_docs_sort, self.k)
+            relevant_docs_sort = self.ranker.retrieve_top_k(relevant_docs_sort, k)
+
         return n_relevant, relevant_docs_sort
 
 
@@ -63,15 +64,16 @@ class Searcher:
         for word in query_as_list:
             posting_list = self._indexer.get_term_posting_list(word) #get all the twite with this word
             for doc in posting_list:
-                relevant_doc = id[0]
-                if relevant_doc not in relevant_docs.keys():
-                    relevant_docs[doc] = [1, []]
-                    tfidf = id[4] * (self._indexer.get_term_inverted_index[word])[2]
-                    relevant_docs[doc][1].append(tfidf)
+                id = doc[0]
+                if id not in relevant_docs.keys():
+                    relevant_docs[id] = [1, []]
+                    #self._indexer.get_term_inverted_idx[word]
+                    tfidf = doc[4] * self._indexer.get_term_inverted_idx(word)[2]
+                    relevant_docs[id][1].append(tfidf)
                 else:
-                    tfidf = id[4] * (self._indexer.get_term_inverted_index[word])[2]
-                    relevant_docs[doc][1].append(tfidf)
-                    relevant_docs[doc][0] += 1
+                    tfidf = doc[4] * self._indexer.get_term_inverted_idx(word)[2]
+                    relevant_docs[id][1].append(tfidf)
+                    relevant_docs[id][0] += 1
             # for list_doc_id in posting_list:
             #     df = relevant_docs.get(list_doc_id, 0)
             #     relevant_docs[doc_id] = df + 1
