@@ -2,7 +2,13 @@ import itertools
 from collections import OrderedDict
 from ranker import Ranker
 import utils
-from py_thesaurus import Thesaurus
+import nltk
+#from nltk.corpus import lin_thesaurus as thes
+#nltk.download('lin_thesaurus')
+
+from nltk.corpus import lin_thesaurus as thesaurus
+#from thesaurus import Word
+
 
 
 
@@ -86,12 +92,20 @@ class Searcher:
 
     def teasarous_(self, query):
         new_query = []
-        for word in query:
-            new_word = Thesaurus(word)
-            print(new_word.get_antonym())
-            new_word_2 = new_word.get_synonym(pos = 'noun')
-
-            new_query.append(new_word)
+        new_query.extend(query)
+        try:
+            for word in query:
+                #new_word_2 = list(thesaurus.synonyms(word))
+                new_word = list(thesaurus.synonyms(word,fileid="simN.lsp"))
+                #new_word_1 = list(thesaurus.synonyms(word,fileid="simV.lsp"))
+                if len(new_word) > 0:
+                    new_query.append(new_word[0])
+                if len(new_word) > 1:
+                    new_query.append(new_word[1])
+                    #new_query.append(new_word[2])
+        except:
+            print("no word for theasarous")
+            print(len(new_word))
         return new_query
 
 

@@ -55,7 +55,7 @@ class SearchEngine:
         end = time.time()
         print(end-start)
         self._indexer.sum_terms_per_docs(number_of_documents)
-        #self._indexer.load_to_disk()
+        self._indexer.save_index("our_inverted_index")
         print('Finished parsing and indexing.')
         #utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
         # utils.save_obj(indexer.postingDict, "posting")
