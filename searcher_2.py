@@ -8,7 +8,7 @@ from ranker import Ranker
 
 
 # DO NOT MODIFY CLASS NAME
-class Searcher_wordnet:
+class Searcher:
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit. The model 
     # parameter allows you to pass in a precomputed model that is already in 
@@ -41,9 +41,7 @@ class Searcher_wordnet:
         queary_list_after_word_net = self.q_word_net(query_as_list)
         #remove stop words
         query_as_list = self._parser.parse_sentence(queary_list_after_word_net)
-
-        #query_as_list = self._parser.parse_sentence(query)
-
+        # find the docs
         relevant_docs = self._relevant_docs_from_posting(query_as_list) # return all the rel doc for the quiry
         n_relevant = len(relevant_docs)
         #ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs)
@@ -67,20 +65,20 @@ class Searcher_wordnet:
         """
         relevant_docs = {}
         for word in query_as_list:
-            posting_list = self._indexer.get_term_posting_list(word) #get all the twite with this word
+            posting_list = self._indexer.get_term_posting_list(word)  # get all the twite with this word
             for doc in posting_list:
-                relevant_doc = id[0]
-                if relevant_doc not in relevant_docs.keys():
-                    relevant_docs[doc] = [1, []]
-                    tfidf = id[4] * (self._indexer.get_term_inverted_index[word])[2]
-                    relevant_docs[doc][1].append(tfidf)
+                tf = self._indexer.get_term_inverted_idx(word)[2]
+                id = doc[0]
+                if id not in relevant_docs.keys():
+                    relevant_docs[id] = [1, []]
+                    # self._indexer.get_term_inverted_idx[word]
+                    tfidf = doc[4] * tf
+                    relevant_docs[id][1].append(tfidf)
                 else:
-                    tfidf = id[4] * (self._indexer.get_term_inverted_index[word])[2]
-                    relevant_docs[doc][1].append(tfidf)
-                    relevant_docs[doc][0] += 1
-            # for list_doc_id in posting_list:
-            #     df = relevant_docs.get(list_doc_id, 0)
-            #     relevant_docs[doc_id] = df + 1
+                    tfidf = doc[4] * tf
+                    relevant_docs[id][1].append(tfidf)
+                    relevant_docs[id][0] += 1
+
         return relevant_docs
     """
     this function expand the query by using word net 
@@ -90,7 +88,6 @@ class Searcher_wordnet:
         extend_query = []
         extend_query.extend(query)
         for word in query:
-            print(word)
             add_new_word = False
             counter_same_word = 0
             syn_list = wn.synsets(word)

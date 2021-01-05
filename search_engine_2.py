@@ -6,7 +6,7 @@ from reader import ReadFile
 from configuration import ConfigClass
 from parser_module import Parse
 from indexer import Indexer
-from searcher_wordnet import Searcher_wordnet
+from searcher_2 import Searcher
 #import utils
 
 
@@ -31,14 +31,6 @@ class SearchEngine:
         Output:
             No output, just modifies the internal _indexer object.
         """
-        #r = ReadFile(self.config.get__corpusPath())
-        #reader = ReadFile(fn)
-        #walk_dir = self.config.get__corpusPath()
-        # for root, subdirs, files in os.walk(walk_dir, topdown=True):
-        #   for file in files:  # files=folder
-        #        if file.endswith('.parquet'):
-
-
         start = time.time()
         number_of_documents = 0
         df = pd.read_parquet(fn, engine="pyarrow")
@@ -54,7 +46,7 @@ class SearchEngine:
             # print("finish file")
         end = time.time()
         print(end-start)
-        #self._indexer.sum_terms_per_docs(number_of_documents)
+        self._indexer.sum_terms_per_docs(number_of_documents)
         #self._indexer.load_to_disk()
         print('Finished parsing and indexing.')
         #utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
@@ -97,5 +89,5 @@ class SearchEngine:
             a list of tweet_ids where the first element is the most relavant
             and the last is the least relevant result.
         """
-        searcher = Searcher_wordnet(self._parser, self._indexer, model=self._model)
+        searcher = Searcher(self._parser, self._indexer, model=self._model)
         return searcher.search(query)
