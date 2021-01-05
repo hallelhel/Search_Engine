@@ -10,16 +10,15 @@ from document import Document
 class Parse:
 
     def __init__(self):
-        self.stop_words = stopwords.words('english') + ['http', 'https', 'rt', '', ' ', '_', '-', '.', '/', ',', 'www']
+        self.stop_words = stopwords.words('english') + ['http', 'https', 'rt', '', ' ', '_', '-', '.', '/', ',', 'www', 't.co']
         self.tokenizer = RegexpTokenizer(r'\w-|\$[\d\.]+|\S+')
         self.month_dict = {'January': '01', 'JANUARY': '01', 'February': '02', 'FEBRUARY': '02', 'March': '03', 'MARCH': '03', 'April': '04', 'APRIL': '04', 'May': '05', 'MAY': '05', 'June': '06', 'JUNE': '06', 'July': '07', 'JULY': '07', 'August': '08', 'AUGUST': '08', 'September': '09',
-                           'SEPTEMBER': '09', 'October': '10', 'OCTOBER': '10', 'November': '11', 'NOVEMBER': '11','December': '12', 'DECEMBER': '12'}
+                           'SEPTEMBER': '09', 'October': '10', 'OCTOBER': '10', 'November': '11', 'NOVEMBER': '11', 'December': '12', 'DECEMBER': '12'}
         self.number_list = ["Thousand", "Million", "Billion", "million", "thousand", "billion"]
         self.dict_numbers = {"one": '1', "two": '2', "three": '3', "four": '4', "five": '5', "six": '6', "seven": '7',
                              "eight": '8', "nine": '9', "ten": '10'}
         self.per = False
         self.per2 = False
-        self.dict_numbers = {"one": '1', "two": '2', "three": '3', "four": '4', "five": '5', "six": '6', "seven": '7',"eight": '8', "nine": '9', "ten": '10'}
 
 
     def parse_sentence(self, text):
@@ -50,7 +49,6 @@ class Parse:
         quote_text = doc_as_list[7]
         quote_url = doc_as_list[8]
         term_dict = {}
-
 
         if "http" in full_text:
             if url != "{}":
@@ -392,8 +390,7 @@ class Parse:
         try:
             if float(number) < 1000:  # small number
                 if counter + 1 < len_text:
-                    if text[counter + 1] in self.number_list or '/' in text[
-                        counter + 1]:  # number with word or dicemal number
+                    if text[counter + 1] in self.number_list or '/' in text[counter + 1]:  # number with word or dicemal number
                         self.per = True
                         return self.number_with_word(number, text, counter)
                 if (number.isdigit()) or ((len(number) - number.index('.') - 1) == 1) or (
