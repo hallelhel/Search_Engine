@@ -10,7 +10,7 @@ from document import Document
 class Parse:
 
     def __init__(self):
-        self.stop_words = stopwords.words('english') + ['http', 'https', 'rt', '', ' ', '_', '-', '.', '/', ',', 'www', 't.co']
+        self.stop_words = stopwords.words('english') + ['http', 'https', 'rt', '', ' ', '_', '-', '.', '/', ',', 'www']
         self.tokenizer = RegexpTokenizer(r'\w-|\$[\d\.]+|\S+')
         self.month_dict = {'January': '01', 'JANUARY': '01', 'February': '02', 'FEBRUARY': '02', 'March': '03', 'MARCH': '03', 'April': '04', 'APRIL': '04', 'May': '05', 'MAY': '05', 'June': '06', 'JUNE': '06', 'July': '07', 'JULY': '07', 'August': '08', 'AUGUST': '08', 'September': '09',
                            'SEPTEMBER': '09', 'October': '10', 'OCTOBER': '10', 'November': '11', 'NOVEMBER': '11', 'December': '12', 'DECEMBER': '12'}
@@ -49,7 +49,6 @@ class Parse:
         quote_text = doc_as_list[7]
         quote_url = doc_as_list[8]
         term_dict = {}
-
         if "http" in full_text:
             if url != "{}":
                 split_url = url.split('"')
@@ -349,7 +348,7 @@ class Parse:
     def url_Opretion(self, url):
         pars_url = urlparse(url)
         host_name = pars_url.hostname
-        if not host_name or url == 'https://www':
+        if not host_name or url == 'https://www' or host_name == 't.co':
             return []
         host_name_tokenize = host_name.split(".")
         if host_name.startswith("www"):
@@ -364,9 +363,11 @@ class Parse:
                 text_tokens.remove(word)
         text_tokens.append(host_name)
         text_tokens = self.ignore_fake_words(text_tokens)
-        real_return = [ host_name]
-        # return text_tokens
-        return real_return
+        # if host_name == 't.co':
+        #     real_return = [host_name]
+        #     return real_return
+        return text_tokens
+
 
     # check sequence of capital letters in text
     def entity(self, text, ind, len_text):
