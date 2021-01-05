@@ -29,6 +29,7 @@ class Ranker:
             print("ranker")
         list_sorted = sorted(relevant_doc.items(), key=lambda item: item[1][1], reverse=True)
         return [d[0] for d in list_sorted]
+
             #return list_sorted
             # ranked_results = sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)
             # if k is not None:
@@ -43,5 +44,21 @@ class Ranker:
         :return: list of relevant document
         """
         return sorted_relevant_doc[:k]
+
+    def dot_prodact_and_cos(self,relevant_doc, _indexer ,len_query, k=None):
+        try:
+            for doc in relevant_doc:
+                mone = 0
+                for wij in relevant_doc[doc][1]:
+                    mone +=wij
+                machne = _indexer.get_weight_doc(doc)
+                machne = machne * len_query
+                cosSim= mone/math.sqrt(machne)
+                relevant_doc[doc][1] = 0.7 * cosSim + 0.3 * mone
+        except:
+            print("ranker")
+        list_sorted = sorted(relevant_doc.items(), key=lambda item: item[1][1], reverse=True)
+        return [d[0] for d in list_sorted]
+
 
 
