@@ -35,8 +35,6 @@ class Searcher_wordnet:
             a list of tweet_ids where the first element is the most relavant 
             and the last is the least relevant result.
         """
-        query = "Dr. Anthony Fauci wrote in a 2005 paper published in Virology Journal"
-
         query_list = query.split(" ")
         query_as_list = self._parser.text_operation(query_list)
         # extension  by word net
@@ -89,27 +87,45 @@ class Searcher_wordnet:
     get query as list and add words by word net
     """
     def q_word_net(self, query):
-        expand_query = query
-        num_of_words = 0
+        extend_query = []
+        extend_query.extend(query)
         for word in query:
-            for synset in wn.synsets(word):
-                for lemma in synset.lemmas():
-                    if lemma.name() == word:
-                        continue
-                    num_of_words =+ 1
-                    new_word = lemma.name()
-                    if "_" not in new_word:
-                        if self._indexer.get_term_inverted_index(new_word):
-                                expand_query.append(new_word)
-                                break
-                    else: # more then one word
-                        new_word_list = new_word.split("_")
-                        expand_query.extend(new_word_list)
+            print(word)
+            add_new_word = False
+            counter_same_word = 0
+            syn_list = wn.synsets(word)
+            for i in range(len(syn_list)):
+                if syn_list[i].lemma_names() != []:
+                    for lemma in syn_list[i].lemma_names():
+                        if lemma == word:
+                            continue
+                        else:
+                            new_word = lemma
+                            if "_" not in new_word:
+                                if self._indexer._is_term_exist_in_idx(new_word):
+                                    extend_query.append(new_word)
+                                    add_new_word = True
+                                    break
+                            else: # more then one word
+                                new_word_list = new_word.split("_")
+                                for w in new_word_list:
+                                    if self._indexer._is_term_exist_in_idx(w):
+                                        extend_query.extend(new_word_list)
+                                        add_new_word = True
+                                        break
+                        if add_new_word == True:
+                            break
+                        counter_same_word += 1
+                        if counter_same_word > 1:
+                            break
+                    if add_new_word == True:
                         break
-                    if num_of_words == 4:
-                        break
+                if add_new_word == True:
+                    break
+                elif i>1:
+                    break
 
-        return set(expand_query)
+        return set(extend_query)
 
 
 
