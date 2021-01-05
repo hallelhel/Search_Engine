@@ -43,12 +43,13 @@ class Searcher:
         query_as_list = self._parser.parse_sentence(queary_list_after_word_net)
         # find the docs
         relevant_docs = self._relevant_docs_from_posting(query_as_list) # return all the rel doc for the quiry
-        n_relevant = len(relevant_docs)
+
         #ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs)
 
         relevant_docs = OrderedDict(sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True))
         relevant_docs = dict(itertools.islice(relevant_docs.items(), 2000))   #max is 2000 docs
         relevant_docs_sort = self._ranker.rank_relevant_docs(relevant_docs, self._indexer, len(query_as_list))
+        n_relevant = len(relevant_docs)
         if k is not None:
             relevant_docs_sort = self.ranker.retrieve_top_k(relevant_docs_sort, self.k)
         return n_relevant, relevant_docs_sort

@@ -364,7 +364,9 @@ class Parse:
                 text_tokens.remove(word)
         text_tokens.append(host_name)
         text_tokens = self.ignore_fake_words(text_tokens)
-        return text_tokens
+        real_return = [ host_name]
+        # return text_tokens
+        return real_return
 
     # check sequence of capital letters in text
     def entity(self, text, ind, len_text):
