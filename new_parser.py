@@ -19,7 +19,7 @@ class Parse:
                              "eight": '8', "nine": '9', "ten": '10'}
         self.per = False
         self.per2 = False
-
+        self.url = []
 
     def parse_sentence(self, text):
         """
@@ -52,22 +52,24 @@ class Parse:
         if "http" in full_text:
             if url != "{}":
                 split_url = url.split('"')
-                index = indices.split(",")
-                if len(index)>2:
-                    index_strart = int(index[0][2:])
-                    index_end = int(index[1][:-1])
-                else:
-                    index_strart= int(index[0][2:])
-                    index_end= int(index[1][:-2])
-                if index_strart == 117 and index_end ==140: # problematic indexes
-                    pass
-                else:
-                    full_text = full_text[:index_strart] + split_url[3] + full_text[index_end:]
+                self.url = self.url_Opretion(split_url[3])
+                # self.text_operation(self.url)
+                # if len(index)>2:
+                #     index_strart = int(index[0][2:])
+                #     index_end = int(index[1][:-1])
+                # else:
+                #     index_strart= int(index[0][2:])
+                #     index_end= int(index[1][:-2])
+                # if index_strart == 117 and index_end ==140: # problematic indexes
+                #     pass
+                # else:
+                #     full_text = full_text[:index_strart] + split_url[3] + full_text[index_end:]
 
         full_text = full_text.replace(",", "")
         tokenized_text = self.tokenizer.tokenize(full_text)
         tokenized_text = self.text_operation(tokenized_text)
         tokenized_text = self.parse_sentence(tokenized_text)
+        tokenized_text.extend(self.url)
         doc_length = len(tokenized_text)  # after text operations.
         uniq_max_freq = self.calc_uniq_max_freq(tokenized_text,term_dict)
         document = Document(tweet_id, tweet_date, full_text, url, retweet_text, retweet_url, quote_text,quote_url, term_dict, doc_length, uniq_max_freq[0], uniq_max_freq[1])
@@ -141,7 +143,7 @@ class Parse:
             if term == " " or term == '':
                 continue
 
-            if term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127 :  # to remove anything that is not a word or number
+            if term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127:  # to remove anything that is not a word or number
                 if term[-1] != '%':
                     while term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127:
                         term = term[:-1]
@@ -150,7 +152,6 @@ class Parse:
                 if term == "":
                     continue
                 #text[counter] = term FIXME happen in line 160
-
 
             ##new- remove emoji in middle of term
             term = ''.join([l for l in term if ord(l) < 127 and ord(
@@ -199,9 +200,9 @@ class Parse:
             if "http" in term:
                 # if ord(term[-1]) == 8230: FIXME no need
                 #     continue
-                term = term[term.find('http'):].strip()
-                urls = self.url_Opretion(term)
-                tokenAfterParse.extend(urls)
+                # term = term[term.find('http'):].strip()
+                # urls = self.url_Opretion(term)
+                # tokenAfterParse.extend(urls)
                 continue
 
             # number cases - dates/percentage:
@@ -363,11 +364,11 @@ class Parse:
                 text_tokens.remove(word)
         text_tokens.append(host_name)
         text_tokens = self.ignore_fake_words(text_tokens)
+        #self.url.extend(text_tokens)
         # if host_name == 't.co':
-        #     real_return = [host_name]
-        #     return real_return
-        return text_tokens
-
+        real_return = [host_name]
+        return real_return
+        #return text_tokens
 
     # check sequence of capital letters in text
     def entity(self, text, ind, len_text):
