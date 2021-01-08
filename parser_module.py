@@ -19,7 +19,8 @@ class Parse:
                              "eight": '8', "nine": '9', "ten": '10'}
         self.per = False
         self.per2 = False
-
+        self.url = []
+        self.words_with_garbage = []
 
     def parse_sentence(self, text):
         """
@@ -52,22 +53,29 @@ class Parse:
         if "http" in full_text:
             if url != "{}":
                 split_url = url.split('"')
-                index = indices.split(",")
-                if len(index)>2:
-                    index_strart = int(index[0][2:])
-                    index_end = int(index[1][:-1])
-                else:
-                    index_strart= int(index[0][2:])
-                    index_end= int(index[1][:-2])
-                if index_strart == 117 and index_end ==140: # problematic indexes
-                    pass
-                else:
-                    full_text = full_text[:index_strart] + split_url[3] + full_text[index_end:]
+                self.url = self.url_Opretion(split_url[3])
+                # self.text_operation(self.url)
+                # if len(index)>2:
+                #     index_strart = int(index[0][2:])
+                #     index_end = int(index[1][:-1])
+                # else:
+                #     index_strart= int(index[0][2:])
+                #     index_end= int(index[1][:-2])
+                # if index_strart == 117 and index_end ==140: # problematic indexes
+                #     pass
+                # else:
+                #     full_text = full_text[:index_strart] + split_url[3] + full_text[index_end:]
+
 
         full_text = full_text.replace(",", "")
         tokenized_text = self.tokenizer.tokenize(full_text)
         tokenized_text = self.text_operation(tokenized_text)
         tokenized_text = self.parse_sentence(tokenized_text)
+        self.words_with_garbage = self.text_operation(self.words_with_garbage)
+        tokenized_text.extend(self.url)
+        self.url = []
+        tokenized_text.extend(self.words_with_garbage)
+        self.words_with_garbage = []
         doc_length = len(tokenized_text)  # after text operations.
         uniq_max_freq = self.calc_uniq_max_freq(tokenized_text,term_dict)
         document = Document(tweet_id, tweet_date, full_text, url, retweet_text, retweet_url, quote_text,quote_url, term_dict, doc_length, uniq_max_freq[0], uniq_max_freq[1])
@@ -138,10 +146,10 @@ class Parse:
                 self.per = True
                 self.per2 = False
                 continue
-            if term == " " or term == '':
+            if term == " " or term == '' or "http" in term:
                 continue
 
-            if term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127 :  # to remove anything that is not a word or number
+            if term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127:  # to remove anything that is not a word or number in the end of the word
                 if term[-1] != '%':
                     while term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127:
                         term = term[:-1]
@@ -151,22 +159,11 @@ class Parse:
                     continue
                 #text[counter] = term FIXME happen in line 160
 
-
-            ##new- remove emoji in middle of term
-            term = ''.join([l for l in term if ord(l) < 127 and ord(
-                l) > 34])  # remove every unneccery part in term, add ascii between 35 to 126
-            if len(term) < 2:
-                continue
-            text[counter] = term
-
-            ##new
             # hashtag & tags cases:
-            if term[0] in string.punctuation:
+            if term[0] in string.punctuation or ord(term[0]) > 127:
                 if term[0] == '#' and len(term) > 2:
-                    # if len(term) == 2: FIXME why to add hashatgs with len 2?
-                    #     tokenAfterParse.append(term)
-                    #     tokenAfterParse.append(term[1])
-                    #   continue
+                    # if len(term) == 2:
+                    #     continue
                     words = self.hashtag_tokenize(
                         term[1:])  # this func split the words and add the original hashtag with lower case to words
                     tokenAfterParse.extend(words)
@@ -176,35 +173,24 @@ class Parse:
                         term = term[1:]
                         if len(term) < 2:
                             break
+                    if term == "":
+                        continue
                     text[counter] = term
-            # if ord(term[0]) > 127 or term[0] in string.punctuation:  # to remove anything that is not a word or number # maybe we need while
-            #     if term[0] == '#' and len(term) > 1:
-            #         if len(term) == 2:
-            #             tokenAfterParse.append(term)
-            #             tokenAfterParse.append(term[1])
-            #             continue
-            #         words = self.hashtag_tokenize(term[1:])
-            #         tokenAfterParse.extend(words)
-            #         # tokenAfterParse.append(term.lower())
-            #         continue
-            #     elif term[0] != '@':
-            #         while ord(term[0]) > 127 or term[0] in string.punctuation:
-            #             term = term[1:]
-            #             if term == "":
-            #                 break
-            #         if term == "":
-            #             continue
-            #         text[counter] = term
-            # url case:
-            if "http" in term:
-                # if ord(term[-1]) == 8230: FIXME no need
-                #     continue
-                term = term[term.find('http'):].strip()
-                urls = self.url_Opretion(term)
-                tokenAfterParse.extend(urls)
-                continue
 
             # number cases - dates/percentage:
+            if term.startswith('covid') or term.startswith('Covid') or term.startswith('COVID'):
+                tokenAfterParse.append('covid19')
+                continue
+
+            if term.startswith('corona') or term.startswith('Corona') or term.startswith('CORONA'):
+                tokenAfterParse.append('corona')
+                continue
+
+            term = self.clean_word(term)
+            if isinstance(term, list):
+                continue
+
+            # try to minimize the covid terms
             if (term.isdigit() or term[0].isdigit()) and not (re.search('[a-zA-Z]', term)):
                 if counter + 1 < len_text and term.isdigit():
                     if text[counter + 1] in self.month_dict:  # Date
@@ -220,10 +206,6 @@ class Parse:
                 tokenAfterParse.append(new_number)
                 continue
 
-            # try to minimize the covid terms
-            if term.startswith('covid') or term.startswith('Covid') or term.startswith('COVID'):
-                tokenAfterParse.append('covid19')
-                continue
 
             # check entity
             if counter + 1 < len_text:
@@ -363,11 +345,11 @@ class Parse:
                 text_tokens.remove(word)
         text_tokens.append(host_name)
         text_tokens = self.ignore_fake_words(text_tokens)
+        #self.url.extend(text_tokens)
         # if host_name == 't.co':
-        #     real_return = [host_name]
-        #     return real_return
-        return text_tokens
-
+        real_return = [host_name]
+        return real_return
+        #return text_tokens
 
     # check sequence of capital letters in text
     def entity(self, text, ind, len_text):
@@ -537,3 +519,29 @@ class Parse:
                     new_word = self.month_dict[term] + '-' + text[counter + 1]
         self.per = True
         return new_word
+
+
+    def clean_word(self,term):
+        if term[0] == '@' or term[-1] == '%':
+            return term
+        new_words =[]
+        counter =-1
+        start_index = 0
+        for l in term:
+            counter +=1
+            if (ord(l) <48) or (ord(l) > 57 and ord(l)< 65) or (ord(l) > 90 and ord(l) < 97) or ord(l) > 122:
+                if counter == start_index:
+                    start_index += 1
+                    continue
+                new_words.append(term[:counter])
+                term = term[counter+1:]
+                counter = -1
+                start_index = 0
+                continue
+        new_words.append(term[start_index:])
+        if len(new_words) == 1:
+            return new_words[0]
+        self.words_with_garbage.extend(new_words)
+        return new_words
+
+

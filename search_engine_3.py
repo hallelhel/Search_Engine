@@ -4,6 +4,7 @@ import time
 import pandas as pd
 from configuration import ConfigClass
 from parser_module import Parse
+#from ParserWithStemming import Parse
 from indexer import Indexer
 from searcher_3 import Searcher
 #import utils
