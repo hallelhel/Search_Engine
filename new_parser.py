@@ -65,6 +65,7 @@ class Parse:
                 # else:
                 #     full_text = full_text[:index_strart] + split_url[3] + full_text[index_end:]
 
+        full_text = "opop...ffkk"
         full_text = full_text.replace(",", "")
         tokenized_text = self.tokenizer.tokenize(full_text)
         tokenized_text = self.text_operation(tokenized_text)
@@ -153,9 +154,16 @@ class Parse:
                     continue
                 #text[counter] = term FIXME happen in line 160
 
-            ##new- remove emoji in middle of term
+            #new- remove emoji in middle of term
+            # term = ''.join([l for l in term if (ord(l)==35) or(ord(l) < 58 and ord(
+            #     l) > 47) or (ord(l)>63 and ord(l)<91) or (ord(l)>96 and ord(l)<123)])  # remove every unneccery part in term, add ascii between 35 to 126
+            # if len(term) < 2:
+            #     continue
+
+            new_words = self.tryy(term)
+
             term = ''.join([l for l in term if ord(l) < 127 and ord(
-                l) > 34])  # remove every unneccery part in term, add ascii between 35 to 126
+                l) > 47])  # remove every unneccery part in term, add ascii between 35 to 126
             if len(term) < 2:
                 continue
             text[counter] = term
@@ -538,3 +546,32 @@ class Parse:
                     new_word = self.month_dict[term] + '-' + text[counter + 1]
         self.per = True
         return new_word
+
+
+    def tryy(self,term):
+        new_words =[]
+        counter =-1
+        start_index =len(term)-1
+        for l in term:
+            counter +=1
+            if (ord(l) <48) or (ord(l) > 57 and ord(l)< 65) or (ord(l) > 90 and ord(l) < 97) or ord(l) > 122:
+                if counter == start_index:
+                    start_index += 1
+                    continue
+                new_words.append(term[:counter])
+                term = term[counter+1:]
+                start_index = counter+1
+                continue
+        new_words.append(term[start_index:])
+        return new_words
+
+
+
+
+
+        # remove every unneccery part in term, add ascii between 35 to 126
+
+
+
+         # ord(l) < 127 and ord(
+         #    l) > 47])
