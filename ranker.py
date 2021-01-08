@@ -54,6 +54,7 @@ class Ranker:
                 machne = _indexer.get_weight_doc(doc)
                 machne = machne * len_query
                 cosSim= mone/math.sqrt(machne)
+                #relevant_doc[doc][1] = (0.7 * cosSim + 0.3 * mone) * (relevant_doc[doc][0]/len_query)
                 relevant_doc[doc][1] = 0.7 * cosSim + 0.3 * mone
         except:
             print("ranker")
