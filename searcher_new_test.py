@@ -43,7 +43,7 @@ class Searcher:
         #ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs)
         relevant_docs = self._order_doc_by_words(relevant_docs, relevant_words)
         relevant_docs = OrderedDict(sorted(relevant_docs.items(), key=lambda item: item[1][3], reverse=True))
-        relevant_docs = dict(itertools.islice(relevant_docs.items(), 1000))   #max is 2000 docs
+        relevant_docs = dict(itertools.islice(relevant_docs.items(), 2000))   #max is 2000 docs
         #relevant_docs_sort = self._ranker.rank_relevant_docs(relevant_docs, self._indexer, len(query_as_list))
 
         #relevant_docs_sort = self._ranker.dot_prodact_and_cos(relevant_docs, self._indexer, len(query_as_list))

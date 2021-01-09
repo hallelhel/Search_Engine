@@ -332,23 +332,22 @@ class Parse:
         host_name = pars_url.hostname
         if not host_name or url == 'https://www' or host_name == 't.co':
             return []
-        host_name_tokenize = host_name.split(".")
+        #host_name_tokenize = host_name.split(".")
         if host_name.startswith("www"):
             host_name_split = host_name.split(".", 1)
             try:
                 host_name = host_name_split[1]
             except:
                 host_name = host_name_split[0]
-        text_tokens = regexp_tokenize(url, "[\w']+")
-        for word in host_name_tokenize:
-            if word in text_tokens:
-                text_tokens.remove(word)
-        text_tokens.append(host_name)
-        text_tokens = self.ignore_fake_words(text_tokens)
-        #self.url.extend(text_tokens)
-        # if host_name == 't.co':
-        real_return = [host_name]
-        return real_return
+        return_host = [host_name]
+        return return_host
+        # text_tokens = regexp_tokenize(url, "[\w']+")
+        # for word in host_name_tokenize:
+        #     if word in text_tokens:
+        #         text_tokens.remove(word)
+        # text_tokens.append(host_name)
+        # text_tokens = self.ignore_fake_words(text_tokens)
+        # #self.url.extend(text_tokens)
         #return text_tokens
 
     # check sequence of capital letters in text

@@ -94,8 +94,8 @@ class Searcher:
       for word in query:
           new_word = spell.correction(word)
           if new_word != word:
-              if self._indexer._is_term_exist_in_idx(new_word) and not self._indexer._is_term_exist_in_idx(word):
-                corr_q[i] = new_word
+              if self._indexer._is_term_exist_in_idx(new_word):
+                  corr_q[i] = new_word
           i += 1
       return corr_q
 
