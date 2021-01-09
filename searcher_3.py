@@ -96,12 +96,12 @@ class Searcher:
             for word in query:
                 #new_word_2 = list(thesaurus.synonyms(word))
                 new_word = list(thesaurus.synonyms(word,fileid="simN.lsp"))
+                new_word_1 = list(thesaurus.synonyms(word,fileid="simV.lsp"))
                 #new_word_1 = list(thesaurus.synonyms(word,fileid="simV.lsp"))
                 if len(new_word) > 0:
                     new_query.append(new_word[0])
-                if len(new_word) > 1:
-                    new_query.append(new_word[1])
-                    #new_query.append(new_word[2])
+                if len(new_word_1):
+                    new_query.append(new_word_1[0])
         except:
             print("no word for theasarous")
             print(len(new_word))

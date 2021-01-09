@@ -3,7 +3,7 @@ import time
 
 import pandas as pd
 from configuration import ConfigClass
-from new_parser import Parse
+from parser_module import Parse
 from indexer import Indexer
 from searcher_new_test import Searcher
 #import utils

@@ -2,7 +2,7 @@ import string
 
 from nltk import PorterStemmer, re
 
-from new_parser import Parse
+from parser_module import Parse
 
 class Parse(Parse) :
     def __init__(self):
@@ -27,11 +27,11 @@ class Parse(Parse) :
                 self.per = True
                 self.per2 = False
                 continue
-            if term == " " or term == '':
+            if term == " " or term == '' or "http" in term:
                 continue
 
             if term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(
-                    term[-1]) > 127:  # to remove anything that is not a word or number
+                    term[-1]) > 127:  # to remove anything that is not a word or number in the end of the word
                 if term[-1] != '%':
                     while term[-1] in string.punctuation or ord(term[-1]) < 48 or ord(term[-1]) > 127:
                         term = term[:-1]
@@ -41,21 +41,11 @@ class Parse(Parse) :
                     continue
                 # text[counter] = term FIXME happen in line 160
 
-            ##new- remove emoji in middle of term
-            term = ''.join([l for l in term if ord(l) < 127 and ord(
-                l) > 34])  # remove every unneccery part in term, add ascii between 35 to 126
-            if len(term) < 2:
-                continue
-            text[counter] = term
-
-            ##new
             # hashtag & tags cases:
-            if term[0] in string.punctuation:
+            if term[0] in string.punctuation or ord(term[0]) > 127:
                 if term[0] == '#' and len(term) > 2:
-                    # if len(term) == 2: FIXME why to add hashatgs with len 2?
-                    #     tokenAfterParse.append(term)
-                    #     tokenAfterParse.append(term[1])
-                    #   continue
+                    # if len(term) == 2:
+                    #     continue
                     words = self.hashtag_tokenize(
                         term[1:])  # this func split the words and add the original hashtag with lower case to words
                     tokenAfterParse.extend(words)
@@ -65,35 +55,24 @@ class Parse(Parse) :
                         term = term[1:]
                         if len(term) < 2:
                             break
+                    if term == "":
+                        continue
                     text[counter] = term
-            # if ord(term[0]) > 127 or term[0] in string.punctuation:  # to remove anything that is not a word or number # maybe we need while
-            #     if term[0] == '#' and len(term) > 1:
-            #         if len(term) == 2:
-            #             tokenAfterParse.append(term)
-            #             tokenAfterParse.append(term[1])
-            #             continue
-            #         words = self.hashtag_tokenize(term[1:])
-            #         tokenAfterParse.extend(words)
-            #         # tokenAfterParse.append(term.lower())
-            #         continue
-            #     elif term[0] != '@':
-            #         while ord(term[0]) > 127 or term[0] in string.punctuation:
-            #             term = term[1:]
-            #             if term == "":
-            #                 break
-            #         if term == "":
-            #             continue
-            #         text[counter] = term
-            # url case:
-            if "http" in term:
-                # if ord(term[-1]) == 8230: FIXME no need
-                #     continue
-                # term = term[term.find('http'):].strip()
-                # urls = self.url_Opretion(term)
-                # tokenAfterParse.extend(urls)
-                continue
 
             # number cases - dates/percentage:
+            if term.startswith('covid') or term.startswith('Covid') or term.startswith('COVID'):
+                tokenAfterParse.append('covid19')
+                continue
+
+            if term.startswith('corona') or term.startswith('Corona') or term.startswith('CORONA'):
+                tokenAfterParse.append('corona')
+                continue
+
+            term = self.clean_word(term)
+            if isinstance(term, list):
+                continue
+
+            # try to minimize the covid terms
             if (term.isdigit() or term[0].isdigit()) and not (re.search('[a-zA-Z]', term)):
                 if counter + 1 < len_text and term.isdigit():
                     if text[counter + 1] in self.month_dict:  # Date
@@ -107,11 +86,6 @@ class Parse(Parse) :
                         continue
                 new_number = self.numbeOpertion(term, text, counter, len_text)
                 tokenAfterParse.append(new_number)
-                continue
-
-            # try to minimize the covid terms
-            if term.startswith('covid') or term.startswith('Covid') or term.startswith('COVID'):
-                tokenAfterParse.append('covid19')
                 continue
 
             # check entity
@@ -131,6 +105,7 @@ class Parse(Parse) :
             term = self.stemmer.stem(term)
             tokenAfterParse.append(term)
         return tokenAfterParse
+
 
     def hashtag_tokenize(self, hashtag):
         words = []
