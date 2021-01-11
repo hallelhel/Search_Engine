@@ -77,7 +77,4 @@ class Searcher:
                     tfidf = doc[4] * self._indexer.get_term_inverted_idx(word)[2]
                     relevant_docs[id][1].append(tfidf)
                     relevant_docs[id][0] += 1
-            # for list_doc_id in posting_list:
-            #     df = relevant_docs.get(list_doc_id, 0)
-            #     relevant_docs[doc_id] = df + 1
         return relevant_docs

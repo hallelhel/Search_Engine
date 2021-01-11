@@ -44,15 +44,10 @@ class Searcher:
         quert_list = self.teasarous_(quert_list)
         query_as_list = self._parser.text_operation(quert_list)
         query_as_list = self._parser.parse_sentence(query_as_list)
-
-        #query_as_list = self._parser.parse_sentence(query)
-
         relevant_docs = self._relevant_docs_from_posting(query_as_list) # return all the rel doc for the quiry
-        #ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs)
 
         relevant_docs = OrderedDict(sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True))
         relevant_docs = dict(itertools.islice(relevant_docs.items(), 2000))   #max is 2000 docs
-        #relevant_docs_sort = self._ranker.rank_relevant_docs(relevant_docs, self._indexer, len(query_as_list))
         relevant_docs_sort = self._ranker.dot_prodact_and_cos(relevant_docs, self._indexer, len(query_as_list))
         n_relevant = len(relevant_docs)
         if k is not None:
@@ -89,22 +84,25 @@ class Searcher:
             #     relevant_docs[doc_id] = df + 1
         return relevant_docs
 
+    """
+        this function expand the query by using teasarous 
+        get query as list and add words by teasarous
+    """
     def teasarous_(self, query):
         new_query = []
         new_query.extend(query)
         try:
             for word in query:
-                #new_word_2 = list(thesaurus.synonyms(word))
                 new_word = list(thesaurus.synonyms(word,fileid="simN.lsp"))
                 new_word_1 = list(thesaurus.synonyms(word,fileid="simV.lsp"))
-                #new_word_1 = list(thesaurus.synonyms(word,fileid="simV.lsp"))
                 if len(new_word) > 0:
                     new_query.append(new_word[0])
                 if len(new_word_1):
                     new_query.append(new_word_1[0])
         except:
-            print("no word for theasarous")
-            print(len(new_word))
+            pass
+            # print("no word for theasarous")
+            # print(len(new_word))
         return new_query
 
 

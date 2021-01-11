@@ -36,15 +36,12 @@ class Searcher:
         query_as_list = self._parser.text_operation(quert_list)
         query_as_list = self._parser.parse_sentence(query_as_list)
 
-        #query_as_list = self._parser.parse_sentence(query)
-
         relevant_docs, relevant_words = self._relevant_docs_from_posting(query_as_list) # return all the rel doc for the quiry
 
         #ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs)
         relevant_docs = self._order_doc_by_words(relevant_docs, relevant_words)
         relevant_docs = OrderedDict(sorted(relevant_docs.items(), key=lambda item: item[1][3], reverse=True))
         relevant_docs = dict(itertools.islice(relevant_docs.items(), 2000))   #max is 2000 docs
-        #relevant_docs_sort = self._ranker.rank_relevant_docs(relevant_docs, self._indexer, len(query_as_list))
 
         #relevant_docs_sort = self._ranker.dot_prodact_and_cos(relevant_docs, self._indexer, len(query_as_list))
         n_relevant = len(relevant_docs)
@@ -93,6 +90,9 @@ class Searcher:
             #     relevant_docs[doc_id] = df + 1
         return relevant_docs, relevant_words
 
+    """
+        order docs by unique words
+    """
     def _order_doc_by_words(self,relevant_docs, relevant_words):
         max_docs = max(relevant_words.values())
         num_of_words = len(relevant_words)
@@ -110,7 +110,7 @@ class Searcher:
                 min_docs = relevant_words[word]
         for doc in relevant_docs:
             relevant_docs[doc].append(0)
-            sum =0
+            sum = 0
             for word in relevant_docs[doc][2]:
                 sum += weight_words[word]
             relevant_docs[doc][3] = sum

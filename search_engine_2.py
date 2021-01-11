@@ -32,7 +32,7 @@ class SearchEngine:
         Output:
             No output, just modifies the internal _indexer object.
         """
-        start = time.time()
+        #start = time.time()
         number_of_documents = 0
         df = pd.read_parquet(fn, engine="pyarrow")
         documents_list = df.values.tolist()
@@ -45,11 +45,12 @@ class SearchEngine:
             # index the document data
             self._indexer.add_new_doc(parsed_document)
             # print("finish file")
-        end = time.time()
-        print(end-start)
+        #end = time.time()
+        #print(end-start)
         self._indexer.sum_terms_per_docs(number_of_documents)
+        #self._indexer.save_index("our_inverted_index")
         #self._indexer.load_to_disk()
-        print('Finished parsing and indexing.')
+        #print('Finished parsing and indexing.')
         #utils.save_obj(self._indexer.inverted_idx, "inverted_idx")
         # utils.save_obj(indexer.postingDict, "posting")
         #utils.save_obj(self._indexer.weight_doc_dict, "weight_doc_dict")
